@@ -1,0 +1,177 @@
+---
+// Why: the whole site. It lists every app from src/content/apps in the order victorsaly.com gives them, each row
+// the same shape as skills.victorsaly.com's: the name, what it does, where to open it, and a real screenshot where
+// a skill has its install line.
+import { getCollection } from 'astro:content';
+import Frame from '../layouts/Frame.astro';
+import { person } from '../lib/person';
+import { splitSummary } from '../content/schema';
+
+const apps = (await getCollection('apps')).sort((a, b) => a.data.order - b.data.order);
+const site = 'https://apps.victorsaly.com';
+const data = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Victor Saly · Apps',
+    url: `${site}/`,
+    author: person,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListElement: apps.map((a, i) => ({ '@type': 'ListItem', position: i + 1, name: a.data.title, url: a.data.url })),
+  },
+];
+---
+
+<Frame
+  title="Apps you can open · Victor Saly"
+  description="Small web apps by Victor Saly: ear-training games, a dice game, a talking maths robot, a correlation checker, a fridge-to-recipe helper, a craft finder for children and a blog written by voice."
+  path="/"
+  card={{ path: '/og/hub.png', alt: 'Victor Saly · Apps: small apps you can open, each made for a real need first.' }}
+  data={data}
+>
+  <section class="intro wrap">
+    <h1>Apps you can open.</h1>
+    <p class="lede">
+      Small apps that run in the browser: games, tools and a blog. Each one was made for a real need first, then kept
+      and looked after.
+    </p>
+  </section>
+  <ul class="list wrap" aria-label="Apps">
+    {
+      apps.map((a) => {
+        const { lead, rest } = splitSummary(a.data.summary);
+        return (
+          <li class="app">
+            <h2 class="name">
+              <a href={a.data.url}>{a.data.title}</a>
+            </h2>
+            <div class="about">
+              <p class="tagline">{lead}</p>
+              {rest && <p>{rest}</p>}
+              <ul class="links">
+                <li>
+                  <a href={a.data.url}>Open {a.data.host}</a>
+                </li>
+                {a.data.repo && (
+                  <li>
+                    <a href={a.data.repo}>Source</a>
+                  </li>
+                )}
+              </ul>
+              <ul class="tech" aria-label={`${a.data.title} is made with`}>
+                {a.data.tech.map((t) => (
+                  <li>{t}</li>
+                ))}
+              </ul>
+            </div>
+            <img class="shot" src={a.data.shot} alt={a.data.shotAlt} width="800" height="500" loading="lazy" decoding="async" />
+          </li>
+        );
+      })
+    }
+  </ul>
+  <p class="more wrap">
+    Seven so far. The skills for coding agents, SideShot and dbtour, are on <a href="https://skills.victorsaly.com">skills.victorsaly.com</a>.
+  </p>
+</Frame>
+
+<style>
+  .intro {
+    padding-top: clamp(48px, 9vw, 112px);
+    display: grid;
+    gap: 20px;
+  }
+  h1 {
+    font-size: clamp(2.6rem, 1.4rem + 5.2vw, 5.4rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.02;
+    max-width: 14ch;
+  }
+  .lede {
+    max-width: 56ch;
+    font-size: clamp(1.1rem, 1rem + 0.45vw, 1.35rem);
+    color: var(--quiet);
+  }
+  .list {
+    list-style: none;
+    padding: 0;
+    margin-top: clamp(48px, 7vw, 80px);
+    border-top: var(--heavy) solid var(--ink);
+  }
+  .app {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+    gap: 18px 48px;
+    padding: 32px 0;
+    border-bottom: var(--hair) solid var(--ink);
+  }
+  .name {
+    font-size: clamp(2rem, 1.5rem + 2vw, 3.2rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    align-self: start;
+  }
+  .name a {
+    text-decoration: none;
+  }
+  .name a:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 0.12em;
+  }
+  .about {
+    display: grid;
+    gap: 12px;
+    max-width: var(--measure);
+  }
+  .tagline {
+    font-weight: 700;
+    font-size: 1.2rem;
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-weight: 700;
+  }
+  /* The separator is drawn after each link, so a line that wraps starts on a word, never on a dot. */
+  .links li:not(:last-child)::after,
+  .tech li:not(:last-child)::after {
+    content: '·';
+    padding: 0 0.45em;
+  }
+  .tech {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: var(--quiet);
+  }
+  .shot {
+    grid-column: 2;
+    width: 100%;
+    max-width: 640px;
+    border: var(--hair) solid var(--rule);
+  }
+  .more {
+    margin-top: 20px;
+    color: var(--quiet);
+  }
+  @media (max-width: 760px) {
+    .app {
+      grid-template-columns: 1fr;
+    }
+    .shot {
+      grid-column: 1;
+    }
+  }
+</style>

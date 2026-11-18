@@ -1,0 +1,193 @@
+---
+// Why: the shared frame, the same as skills.victorsaly.com's: Victor's name as the maker on the left, the site
+// after it, the source on the right, and the same footer on every page.
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  path: string;
+  repo?: string;
+  /** The page's 1200×630 share card in public/og/, drawn by `npm run cards`. */
+  card: { path: string; alt: string };
+  /** Structured data for search engines; only what the page itself shows. */
+  data?: Record<string, unknown>[];
+}
+
+const { title, description, path, repo = 'https://github.com/victorsaly/apps', card, data = [] } = Astro.props;
+const canonical = new URL(path, Astro.site).href;
+const image = new URL(card.path, Astro.site).href;
+---
+
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {path === "/404" && <meta name="robots" content="noindex" />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Victor Saly · Apps" />
+    <meta property="og:locale" content="en_GB" />
+    <meta property="og:image" content={image} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={card.alt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={image} />
+    <meta name="twitter:image:alt" content={card.alt} />
+    <link rel="sitemap" href="/sitemap.xml" />
+    {data.map((item) => <script type="application/ld+json" set:html={JSON.stringify(item)} />)}
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1c1c1c" media="(prefers-color-scheme: dark)" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to the content</a>
+    <header class="bar">
+      <div class="wrap bar-row">
+        <nav class="trail" aria-label="Where you are">
+          <a class="home" href="/"><span class="square" aria-hidden="true"></span><b>Victor Saly</b><span class="hub">Apps</span></a>
+        </nav>
+        <a class="source" href={repo}>
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6" /><path d="M20 4 11 13" /><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" /></svg>
+          <span class="source-label">Source on GitHub</span>
+        </a>
+      </div>
+    </header>
+    <main id="main">
+      <slot />
+    </main>
+    <footer class="foot">
+      <div class="wrap foot-row">
+        <p><b>Victor Saly · Apps.</b> Small apps you can open, each made for a real need first.</p>
+        <ul class="family" aria-label="Victor Saly elsewhere">
+          <li><a href="/">All apps</a></li>
+          <li><a href="https://skills.victorsaly.com" rel="me">Skills for coding agents</a></li>
+          <li><a href="https://victorsaly.com" rel="me">Work at victorsaly.com</a></li>
+          <li><a href="https://blog.victorsaly.com" rel="me">Writing on the blog</a></li>
+          <li><a href="https://www.linkedin.com/in/victorsaly" rel="me">LinkedIn</a></li>
+          <li><a href="https://github.com/victorsaly" rel="me">GitHub</a></li>
+          <li>MIT licence</li>
+        </ul>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .skip {
+    position: absolute;
+    left: var(--gutter);
+    top: -100px;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 8px 14px;
+    z-index: 10;
+  }
+  .skip:focus {
+    top: 8px;
+  }
+  .bar {
+    border-bottom: var(--hair) solid var(--ink);
+  }
+  .bar-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 60px;
+  }
+  .trail {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+  .trail a {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    text-decoration: none;
+    font-size: 1.05rem;
+  }
+  .trail a:hover b {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.25em;
+  }
+  .square {
+    width: 14px;
+    height: 14px;
+    background: var(--ink);
+  }
+  .hub {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .source {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .source:hover {
+    text-decoration: underline;
+  }
+  .foot {
+    margin-top: clamp(64px, 10vw, 120px);
+    border-top: var(--strong) solid var(--ink);
+    padding: 28px 0 48px;
+    font-size: 0.95rem;
+    color: var(--quiet);
+  }
+  .foot-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 32px;
+  }
+  .foot b {
+    color: var(--ink);
+  }
+  .family {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  /* The separator is drawn after each item, so a line that wraps starts on a word, never on a dot. */
+  .family li:not(:last-child)::after {
+    content: '·';
+    padding: 0 0.45em;
+    color: var(--hush);
+  }
+  @media (max-width: 560px) {
+    .source-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    .source {
+      padding: 10px;
+      margin-right: -10px;
+    }
+    .source svg {
+      width: 22px;
+      height: 22px;
+    }
+  }
+</style>
