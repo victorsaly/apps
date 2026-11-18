@@ -16,9 +16,9 @@ const apps = readdirSync(here('./apps'))
   .map((name) => ({ slug: name.replace(/\.md$/, ''), text: readFileSync(here(`./apps/${name}`), 'utf8') }));
 
 describe('apps (src/content/apps)', () => {
-  it('lists the seven the owner chose', () => {
+  it('lists the eight the owner chose', () => {
     expect(apps.map((a) => a.slug).sort()).toEqual(
-      ['agentic-blog', 'correlateai', 'delulu-beats', 'feedme-ai', 'liliart', 'oliver-math', 'shut-the-cube'],
+      ['agentic-blog', 'correlateai', 'dbtour', 'delulu-beats', 'feedme-ai', 'liliart', 'oliver-math', 'shut-the-cube'],
     );
   });
 
